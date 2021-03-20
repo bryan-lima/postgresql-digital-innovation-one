@@ -163,12 +163,12 @@
 - Arquivo responsável pelo controle de autenticação dos usuários no servidor PostgreSQL
 - O formato do arquivo pode ser:
 ```
-   local 	    database   user   auth-method 	[auth-options]
-   host 	    database   user   addres 	auth-method 	[auth-options]
-   hostssl 	    database   user   addres 	auth-method 	[auth-options]
+   local 	database   user   auth-method 	[auth-options]
+   host 	database   user   addres 	auth-method 	[auth-options]
+   hostssl 	database   user   addres 	auth-method 	[auth-options]
    hostnosssl 	database   user   addres 	auth-method 	[auth-options]
-   host 	    database   user   IP-addres 	IP-mask 	auth-method 	[auth-options]
-   hostssl 	    database   user   IP-addres 	IP-mask 	auth-method 	[auth-options]
+   host 	database   user   IP-addres 	IP-mask 	auth-method 	[auth-options]
+   hostssl 	database   user   IP-addres 	IP-mask 	auth-method 	[auth-options]
    hostnossl 	database   user   IP-addres 	IP-mask 	auth-method 	[auth-options]
 ```
 
