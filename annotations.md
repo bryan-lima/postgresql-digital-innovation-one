@@ -262,6 +262,254 @@
 
 ### Como administrar usuários no banco de dados
 
+#### Conceitos users/roles/groups
+
+##### Definição
+- Roles (papéis ou funções), users (usuários) e grupos de usuários são "contas", perfis de atuação em um banco de dados, que possuem permissões em comum ou específicas
+- Nas versões anteriores do PostgreSQL 8.1, usuários e roles tinham comportamentos diferentes
+- Atualmente, roles e users são alias
+- É possível que roles pertençam a outros roles
+
+#### Comandos Terminal/Prompt/CMD
+
+- Conexão acessando 127.0.0.1 na porta 5432 usando usuário postgres
+    ```cmd
+        psql -h 127.0.0.1 -p 5432 -U postgres
+    ```
+
+- Fechar conexão
+    ```cmd
+        \q
+    ```
+
+- Exibir as roles criadas
+    ```cmd
+        \du
+    ```
+
+- Query que retorna todas as roles disponíveis no banco de dados
+    ```sql
+        SELECT * FROM pg_roles;
+    ```
+
+#### Administrando users/roles/groups
+
+```sql
+   CREATE ROLE name [ [ WITH ] option [...] ]
+```
+
+   where option can be:
+
+```sql
+      SUPERUSER | NOSUPERUSER
+      | CREATEDB | NOCREATEDB
+      | CREATEROLE | NOCREATEROLE
+      | INHERIT | NOINHERIT
+      | LOGIN | NOLOGIN
+      | REPLICATION | NOREPLICATION
+      | BYPASSRLS | NOBYPASSRLS
+      | CONNECTION LIMIT connlimit
+      | [ENCRYPTED] PASSWORD 'password' | PASSWORD NULL
+      | VALID UNTIL 'timestamp'
+      | IN ROLE role_name [, ...]
+      | IN GROUP role_name [, ...]
+      | ROLE role_name [, ...]
+      | ADMIN role_name [, ...]
+      | USER role_name [, ...]
+      | SYSID uid
+```
+
+
+##### Exemplos de criação
+
+```sql
+   CREATE ROLE administradores
+      CREATEDB
+	  CREATEROLE
+	  INHERIT
+	  NOLOGIN
+	  REPLICATION
+	  BYPASSRLS
+	  CONNECTION LIMIT -1;
+
+   CREATE ROLE professores
+      NOCREATEDB
+	  NOCREATEROLE
+	  INHERIT
+	  NOLOGIN
+	  NOBYPASSRLS
+	  CONNECTION LIMIT 10;
+
+   CREATE ROLE alunos
+      NOCREATEDB
+	  NOCREATEROLE
+	  INHERIT
+	  NOLOGIN
+	  NOBYPASSRLS
+	  CONNECTION LIMIT 90;
+```
+
+
+##### Associação entre roles
+- Quando uma role assume as permissões de outra role
+   - Necessário a opção INHERIT
+- No momento de criação da role:
+   - IN ROLE (passa a pertencer a role informada)
+   - ROLE (a role informada passa a pertencer a nova role)
+- Ou após a criação da role:
+   - GRANT [role a ser concedida] TO [role a assumir as permissões]
+
+
+##### Exemplos de associação
+
+```sql
+   CREATE ROLE professores
+      NOCREATEDB
+	  NOCREATEROLE
+	  INHERIT
+	  NOLOGIN
+	  NOBYPASSRLS
+	  CONNECTION LIMIT -1;
+   
+   CREATE ROLE daniel LOGIN CONNECTION LIMIT 1 PASSWORD '123' IN ROLE professores;
+      - A role daniel  passa a assumir as permissões da role professores
+	  
+   CREATE ROLE daniel LOGIN CONNECTION LIMIT 1 PASSWORD '123' ROLE professores;
+      - A role professores passa a fazer parte da role daniel assumindo suas permissões
+	  
+   CREATE ROLE daniel LOGIN CONNECTION LIMIT 1 PASSWORD '123';
+   GRANT professores TO daniel;
+```
+
+
+##### Desassociar membros entre roles
+
+```sql
+   REVOKE [role que será revogada] FROM [role que terá suas permissões revogadas]
+   
+   REVOKE professores FROM daniel;
+```
+
+
+##### Alterando uma role
+
+```sql
+   ALTER ROLE role_specification [ WITH ] option [...]
+```
+
+   where option can be:
+
+```sql
+      SUPERUSER | NOSUPERUSER
+      | CREATEDB | NOCREATEDB
+      | CREATEROLE | NOCREATEROLE
+      | CREATEUSER | NOCREATEUSER
+      | INHERIT | NOINHERIT
+      | LOGIN | NOLOGIN
+      | REPLICATION | NOREPLICATION
+      | BYPASSRLS | NOBYPASSRLS
+      | CONNECTION LIMIT connlimit
+      | [ENCRYPTED | UNENCRYPTED] PASSWORD 'password'
+      | VALID UNTIL 'timestamp'
+```
+
+
+##### Excluindo uma role
+
+```sql
+   DROP ROLE role_specification
+```
+
+
+#### Administrando acessos (GRANT)
+
+##### Definição
+
+- São privilégios de acesso aos objetos do banco de dados
+
+##### Privilégios
+
+<pre>
+   -- tabela
+   -- coluna
+   -- sequence
+   -- database
+   -- domain
+   -- foreign data wrapper
+   -- foreign server
+   -- function
+   -- language
+   -- large object
+   -- schema
+   -- tablespace
+   -- type
+</pre>
+
+
+##### Database
+
+```sql
+   GRANT {{CREATE | CONNECT | TEMPORARY | TEMP}[, ...] | ALL [PRIVILEGES]}
+      ON DATABASE database_name [, ...]
+	  TO role_specification [, ...] [WITH GRANT OPTION]
+```
+
+
+##### Schema	  
+
+```sql
+   GRANT {{CREATE | USAGE}[, ...] | ALL [PRIVILEGES]}
+      ON SCHEMA schema_name [, ...]
+	  TO role_specification [, ...] [WITH GRANT OPTION]
+```
+
+
+##### Table
+
+```sql
+   GRANT {{SELECT | INSERT | UPDATE | DELETE | TRUNCATE | REFERENCES | TRIGGER}
+      [, ...] | ALL [PRIVILEGES]}
+	  ON {[TABLE] table_name [, ...]
+	     | ALL TABLES IN SCHEMA schema_name [, ...]}
+	  TO role_specification [, ...] [WITH GRANT OPTION]
+```
+
+
+##### Revoke
+
+- Retira as permissões da role
+
+
+###### Database
+
+```sql
+   REVOKE [GRANT OPTION FOR]
+      {{CREATE | CONNECT TEMPORARY | TEMP} [, ...] | ALL [PRIVILEGES]}
+	  ON DATABASE database_name [, ...]
+	  FROM {[GROUP] role_name | PUBLIC} [, ...]
+	  [CASCADE | RESTRICT]
+```
+
+
+###### Schema
+
+```sql
+   REVOKE [GRANT OPTION FOR]
+      {{CREATE | USAGE} [, ...] | ALL [PRIVILEGES]}
+	  ON SCHEMA schema_name [, ...]
+	  FROM {[GROUP] role_name | PUBLIC} [, ...]
+	  [CASCADE | RESTRICT]
+```
+
+
+##### Revogando todas as permissões (simplificado)
+
+```sql
+   REVOKE ALL ON ALL TABLES IN SCHEMA [schema] FROM [role];
+   REVOKE ALL ON SCHEMA [schema] FROM [role];
+   REVOKE ALL ON DATABASE [database] FROM [role];
+```
+
 ---
 
 
