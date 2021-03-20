@@ -250,6 +250,13 @@
 
 ### Conheça a ferramenta PGAdmin
 
+#### PGAdmin
+##### Importante para a conexão:
+
+1. Liberar acesso ao cluster em postgresql.conf
+2. Liberar acesso ao cluster para o usuário do banco de dados em pg_hba.conf
+3. Criar/editar usuários
+
 ---
 
 
