@@ -8,7 +8,13 @@ Curso ministrado pelo **[Daniel Roberto Costa](https://github.com/drobcosta)** c
 
 Disponível na plataforma **[Digital Innovation One](https://digitalinnovation.one/)**.
 
-## 📑 Conteúdo
+## ✍️ Anotações
+
+Veja as minhas anotações [clicando aqui](https://github.com/bryan-lima/postgresql-digital-innovation-one/blob/master/annotations.md).
+
+<h2>
+    <img height="22" src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/postgresql/postgresql.png"> &nbsp;Conteúdo
+</h2>
 
 ### Introdução ao banco de dados PostgreSQL
 - Fundamentos de banco de dados
