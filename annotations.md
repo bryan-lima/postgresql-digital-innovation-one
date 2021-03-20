@@ -65,16 +65,40 @@
 
 
 ### Instalação do PostgreSQL no Ubuntu
+<!-- #### Instalação no Linux (Ubuntu 18)
+- Como root, criar o arquivo:
+   - /etc/apt/sources.list.d/pgdg.list
+- Adicionar o conteúdo:
+   - deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main
+- Importar o chave do repositório oficial:
+   - wget --quiet -O -https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+- Atualizar os repositórios:
+   - sudo apt-get update
+- Instalar o PostgreSQL:
+   - apt-get install postgresql-11
+
+### pgAdmin
+- Ferramenta gráfica para interagir com o banco de dados
+- https://www.pgadmin.org/
+- Seguir as instruções para download
+- Usaremos a versão 4 -->
+
+- Verificar passo a passo no site oficial https://www.postgresql.org/download/
 
 ---
 
 
 ### Instalação do PostgreSQL no CentOS/Red Hat
 
+- Verificar passo a passo no site oficial https://www.postgresql.org/download/
+
 ---
 
 
 ### Instalação do PostgreSQL no Windows
+
+- Baixar executável (`.exe`) em https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
+- Executar e seguir orientações do instalador
 
 ---
 
