@@ -515,6 +515,142 @@
 
 ### Objetos e comandos do banco de dados
 
+#### Database
+
+- É o banco de dados
+- Grupo de schemas e seus objetos, como tabelas, types, views, funções, entre outros
+- Seus schemas e objetos não podem ser compartilhadas entre si
+- Cada database é separado um do outro compartilhando apenas usuários/roles e configurações do cluster PostgreSQL
+
+
+#### Schema
+
+- É um grupo de objetos, como tabelas, types, views, funções, entre outros
+- É possível relacionar objetos entre diversos schemas
+- Por exemplo: schema public e schema curso podem ter tabelas com o mesmo nome (teste por exemplo) relacionando-se entre si
+
+
+#### Objetos
+
+- São as tabelas, views, funções, types, sequences, entre outros, pertencentes aos schemas
+
+
+#### Manipulação de database
+
+```sql
+   CREATE DATABASE name
+      [[WITH] [OWNER [=] user_name]
+	     [TEMPLATE [=] template]
+		 [ENCODING [=] encoding]
+		 [LC_COLLATE [=] lc_collate]
+		 [LC_CTYPE [=] lc_ctype]
+		 [TABLESPACE [=] tablespace_name]
+		 [ALLOW_CONNECTIONS [=] allowconn]
+		 [CONNECTION LIMIT [=] connlimit]
+		 [ISTEMPLATE [=] istemplate]]
+	
+	
+	ALTER DATABASE name RENAME new_name
+	ALTER DATABASE name OWNER TO {new_owner | CURRENT_USER | SESSION_USER}
+	ALTER DATABASE name SET TABLESPACE new_tablespace
+	
+	
+	DROP DATABASE [nome]
+```
+
+
+#### Manipulação de schema
+
+```sql
+   CREATE SCHEMA schema_name [AUTHORIZATION role_specification]
+   
+   
+   ALTER SCHEMA name RENAME TO new_name
+   ALTER SCHEMA name OWNER TO {new_owner | CURRENT_USER | SESSION_USER}
+   
+   
+   DROP SCHEMA [nome]
+```
+
+
+##### Melhores práticas
+
+```sql
+   CREATE SCHEMA IF NOT EXISTS schema_name [AUTHORIZATION role_specification]
+   DROP SCHEMA IF EXISTS [nome];
+```
+
+
+#### Tabelas, Colunas e Tipos de dados
+
+##### Definição
+
+- Conjuntos de dados dispostos em colunas e linhas referentes a um objetivo comum
+- As colunas são consideradas como "campos da tabela", como atributos da tabela
+- As linhas de uma tabela são chamadas também de tuplas, e é onde estão contidos os valores, os dados
+
+
+##### Tipos de dados
+
+<pre>
+- Numeric Types
+- Monetary Types
+- Character Types
+- Binary Data Types
+- Date/Time Types
+- Boolean Types
+- Enumerated Types
+- Geometric Types
+- Network Addess Types
+- Bit String Types
+- Text Search Types
+- UUID Type
+- XML Type
+- JSON Types
+- Arrays
+- Composite Types
+- Range Types
+- Domain Types
+- Object Identifier Types
+- pg_lsn Type
+- Pseudo-Types
+</pre>
+
+
+#### DML e DDL
+
+- DML
+   - Data Manipulation Language
+   - Linguagem de Manipulação de Dados
+   - INSERT, UPDATE, DELET, SELECT
+      * O SELECT, alguns consideram como DML, outros como DQL, que significa Data Query Language, ou Linguagem de Consulta de Dados
+- DDL
+   - Data Definition Language
+   - Linguage de Definição de Dados
+   - CREATE, ALTER, DROP
+
+
+##### CREATE / ALTER / DROP
+
+```sql
+   CREATE [objeto] [nome do objeto] [opções];
+   ALTER [objeto] [nome do objeto] [opções];
+   DROP [objeto] [nome do objeto] [opções];
+```
+
+
+##### Exemplos
+
+```sql
+   CREATE DATABASE dadosbancarios;
+   ALTER DATABASE dadosbancarios OWNER TO diretoria;
+   DROP DATABASE dadosbancarios;
+   
+   CREATE SCHEMA IF NOT EXISTS bancos;
+   ALTER SCHEMA bancos OWNER TO diretoria;
+   DROP SCHEMA IF EXISTS bancos;
+```
+
 ---
 
 
