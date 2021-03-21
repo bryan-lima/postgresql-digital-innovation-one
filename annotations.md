@@ -703,6 +703,12 @@ TRUNCATE [TABLE] [ONLY] name [*] [, ...]
 
 ### Funções agregadas em PostgrSQL
 
+- AVG
+- COUNT (opção: HAVING)
+- MAX
+- MIN
+- SUM
+
 ---
 
 
