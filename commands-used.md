@@ -239,3 +239,105 @@ GROUP BY tipo_transacao_id
 ORDER BY tipo_transacao_id DESC;
 ```
 
+
+### Aula: Trabalhando com JOINs
+
+- Exemplos de uso de `INNER JOIN`, `LEFT OUTER JOIN` e `RIGHT OUTER JOIN`
+
+```sql
+SELECT numero, nome FROM banco;
+SELECT banco_numero, numero, nome FROM agencia;
+SELECT numero, nome FROM cliente;
+SELECT banco_numero, agencia_numero, numero, digito, cliente_numero FROM conta_corrente;
+SELECT id, nome FROM tipo_transacao;
+SELECT banco_numero, agencia_numero, conta_corrente_numero, conta_corrente_digito, cliente_numero, valor FROM cliente_transacoes;
+
+SELECT count(1) FROM banco; -- 151
+SELECT count(1) FROM agencia; -- 296
+
+-- 296 registros
+SELECT banco.numero, banco.nome, agencia.numero, agencia.nome
+FROM banco
+JOIN agencia ON agencia.banco_numero = banco.numero;
+
+SELECT COUNT(banco.numero)
+FROM banco
+JOIN agencia ON agencia.banco_numero = banco.numero;
+
+SELECT banco.numero
+FROM banco
+JOIN agencia ON agencia.banco_numero = banco.numero
+GROUP BY banco.numero;
+
+SELECT COUNT(DISTINCT banco.numero)
+FROM banco
+JOIN agencia ON agencia.banco_numero = banco.numero;
+
+-- LEFT JOIN
+SELECT banco.numero, banco.nome, agencia.numero, agencia.nome
+FROM banco
+LEFT JOIN agencia ON agencia.banco_numero = banco.numero; -- 438
+
+-- RIGHT JOIN
+SELECT agencia.numero, agencia.nome, banco.numero, banco.nome
+FROM agencia
+RIGHT JOIN banco ON banco.numero = agencia.banco_numero; -- 438
+
+-- FULL JOIN
+SELECT banco.numero, banco.nome, agencia.numero, agencia.nome
+FROM banco
+FULL JOIN agencia ON agencia.banco_numero = banco.numero; -- 438
+```
+
+
+- Criar tabelas para exemplificar uso de `CROSS JOIN`
+
+```sql
+CREATE TABLE IF NOT EXISTS teste_a (
+	id SERIAL PRIMARY KEY,
+	valor VARCHAR(10)
+);
+
+CREATE TABLE IF NOT EXISTS teste_b (
+	id SERIAL PRIMARY KEY,
+	valor VARCHAR(10)
+);
+
+INSERT INTO teste_a (valor) VALUES ('teste1');
+INSERT INTO teste_a (valor) VALUES ('teste2');
+INSERT INTO teste_a (valor) VALUES ('teste3');
+INSERT INTO teste_a (valor) VALUES ('teste4');
+
+INSERT INTO teste_b (valor) VALUES ('teste_a');
+INSERT INTO teste_b (valor) VALUES ('teste_b');
+INSERT INTO teste_b (valor) VALUES ('teste_c');
+INSERT INTO teste_b (valor) VALUES ('teste_d');
+
+-- CROSS JOIN
+SELECT tbla.valor, tblb.valor
+FROM teste_a tbla
+CROSS JOIN teste_b tblb;
+
+DROP TABLE IF EXISTS teste_a;
+DROP TABLE IF EXISTS teste_b;
+```
+
+
+- Exemplo de uso de vários `JOINs`
+
+```sql
+SELECT banco.nome,
+	   agencia.nome,
+	   conta_corrente.numero,
+	   conta_corrente.digito,
+	   cliente.nome
+FROM banco
+JOIN agencia ON agencia.banco_numero = banco.numero
+JOIN conta_corrente
+	-- ON conta_corrente.banco_numero = agencia.banco_numero
+	ON conta_corrente.banco_numero = banco.numero
+	AND conta_corrente.agencia_numero = agencia.numero
+JOIN cliente
+	ON cliente.numero = conta_corrente.cliente_numero;
+```
+
