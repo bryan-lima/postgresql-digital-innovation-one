@@ -113,21 +113,21 @@
 
 ##### postgresql.conf
 - Ao acessar a view pg_settings, é possível visualizar todas as configurações atuais:
-   ```sql
-   SELECT name, seetings
-   FROM pg_settings
-   ```
+```sql
+SELECT name, seetings
+FROM pg_settings
+```
 - Ou é possível usar o comando:
-   ```sql
-   SHOW [parâmetro]
-   ```
+```sql
+SHOW [parâmetro]
+```
 
 ##### Localização do arquivo postgresql.conf
 - Por padrão, encontra-se dentro do diretório PGDATA definido no momento da inicialização do cluster de banco de dados
 - No sistema operacional Ubuntu, se o PostgreSQL foi instalado a partir do repositório oficial, o local do arquivo postgresql.conf será diferente do diretório de dados
-   ```shell
-   /etc/postgresql/[versão]/[nome do cluster]/postgresql.conf
-   ```
+```shell
+/etc/postgresql/[versão]/[nome do cluster]/postgresql.conf
+```
 
 ##### Configurações de conexão
 - LISTEN_ADDRESS
@@ -273,24 +273,24 @@
 #### Comandos Terminal/Prompt/CMD
 
 - Conexão acessando 127.0.0.1 na porta 5432 usando usuário postgres
-    ```cmd
-        psql -h 127.0.0.1 -p 5432 -U postgres
-    ```
+```cmd
+   psql -h 127.0.0.1 -p 5432 -U postgres
+```
 
 - Fechar conexão
-    ```cmd
-        \q
-    ```
+```cmd
+   \q
+```
 
 - Exibir as roles criadas
-    ```cmd
-        \du
-    ```
+```cmd
+   \du
+```
 
 - Query que retorna todas as roles disponíveis no banco de dados
-    ```sql
-        SELECT * FROM pg_roles;
-    ```
+```sql
+   SELECT * FROM pg_roles;
+```
 
 #### Administrando users/roles/groups
 
@@ -301,22 +301,22 @@
    where option can be:
 
 ```sql
-      SUPERUSER | NOSUPERUSER
-      | CREATEDB | NOCREATEDB
-      | CREATEROLE | NOCREATEROLE
-      | INHERIT | NOINHERIT
-      | LOGIN | NOLOGIN
-      | REPLICATION | NOREPLICATION
-      | BYPASSRLS | NOBYPASSRLS
-      | CONNECTION LIMIT connlimit
-      | [ENCRYPTED] PASSWORD 'password' | PASSWORD NULL
-      | VALID UNTIL 'timestamp'
-      | IN ROLE role_name [, ...]
-      | IN GROUP role_name [, ...]
-      | ROLE role_name [, ...]
-      | ADMIN role_name [, ...]
-      | USER role_name [, ...]
-      | SYSID uid
+   SUPERUSER | NOSUPERUSER
+   | CREATEDB | NOCREATEDB
+   | CREATEROLE | NOCREATEROLE
+   | INHERIT | NOINHERIT
+   | LOGIN | NOLOGIN
+   | REPLICATION | NOREPLICATION
+   | BYPASSRLS | NOBYPASSRLS
+   | CONNECTION LIMIT connlimit
+   | [ENCRYPTED] PASSWORD 'password' | PASSWORD NULL
+   | VALID UNTIL 'timestamp'
+   | IN ROLE role_name [, ...]
+   | IN GROUP role_name [, ...]
+   | ROLE role_name [, ...]
+   | ADMIN role_name [, ...]
+   | USER role_name [, ...]
+   | SYSID uid
 ```
 
 
@@ -372,10 +372,10 @@
 	  CONNECTION LIMIT -1;
    
    CREATE ROLE daniel LOGIN CONNECTION LIMIT 1 PASSWORD '123' IN ROLE professores;
-      - A role daniel  passa a assumir as permissões da role professores
+      -- A role daniel  passa a assumir as permissões da role professores
 	  
    CREATE ROLE daniel LOGIN CONNECTION LIMIT 1 PASSWORD '123' ROLE professores;
-      - A role professores passa a fazer parte da role daniel assumindo suas permissões
+      -- A role professores passa a fazer parte da role daniel assumindo suas permissões
 	  
    CREATE ROLE daniel LOGIN CONNECTION LIMIT 1 PASSWORD '123';
    GRANT professores TO daniel;
@@ -400,17 +400,17 @@
    where option can be:
 
 ```sql
-      SUPERUSER | NOSUPERUSER
-      | CREATEDB | NOCREATEDB
-      | CREATEROLE | NOCREATEROLE
-      | CREATEUSER | NOCREATEUSER
-      | INHERIT | NOINHERIT
-      | LOGIN | NOLOGIN
-      | REPLICATION | NOREPLICATION
-      | BYPASSRLS | NOBYPASSRLS
-      | CONNECTION LIMIT connlimit
-      | [ENCRYPTED | UNENCRYPTED] PASSWORD 'password'
-      | VALID UNTIL 'timestamp'
+   SUPERUSER | NOSUPERUSER
+   | CREATEDB | NOCREATEDB
+   | CREATEROLE | NOCREATEROLE
+   | CREATEUSER | NOCREATEUSER
+   | INHERIT | NOINHERIT
+   | LOGIN | NOLOGIN
+   | REPLICATION | NOREPLICATION
+   | BYPASSRLS | NOBYPASSRLS
+   | CONNECTION LIMIT connlimit
+   | [ENCRYPTED | UNENCRYPTED] PASSWORD 'password'
+   | VALID UNTIL 'timestamp'
 ```
 
 
@@ -657,6 +657,46 @@
 ## Fundamentos da Structured Query Language (SQL)
 
 ### Conheça o DML e o Truncate
+
+- Idempotência
+   - Propriedade que algumas ações/operações possuem possibilitando-as de serem executadas diversas vezes sem alterar o resultado após a aplicação inicial
+   - IF EXISTS
+   - Comandos pertinentes ao DDL e DML
+
+
+#### DML - CRUD
+
+##### INSERT - Idempotência
+
+```sql
+INSERT INTO agencia (banco_numero, numero, nome) VALUES (341, 1, 'Centro da cidade');
+
+INSERT INTO agencia (banco_numero, numero, nome)
+SELECT 341, 1, 'Centro da cidade'
+WHERE NOT EXISTS (SELECT banco_numero, numero, nome, FROM agencia 
+   WHERE banco_numero = 341 AND numero = 1 AND nome = 'Centro da cidade');
+```
+
+##### ON CONFLICT
+
+```sql
+INSERT INTO agencia (banco_numero, numero, nome) VALUES (341, 1, 'Centro da cidade')
+ON CONFLICT (banco_numero, numero) DO NOTHING;
+```
+
+
+#### Truncate
+
+#### Definição
+
+- "Esvaziar" a tabela
+
+
+```sql
+TRUNCATE [TABLE] [ONLY] name [*] [, ...]
+   [RESTART IDENTITY] | [CONTINUE IDENTITY] [CASCADE | RESTRICT]
+```
+
 
 ---
 
