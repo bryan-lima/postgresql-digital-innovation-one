@@ -43,7 +43,7 @@
 - No `Query Editor` aberto, digitar o comando:
 
 ```sql
-    CREATE DATABASE financas;
+CREATE DATABASE financas;
 
 ```
 
@@ -113,4 +113,58 @@ CREATE TABLE IF NOT EXISTS cliente_transacoes (
 	data_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY (banco_numero, agencia_numero, conta_corrente_numero, conta_corrente_digito, cliente_numero) REFERENCES conta_corrente (banco_numero, agencia_numero, numero, digito, cliente_numero)
 );
+```
+
+
+## Módulo: Fundamentos da Structured Query Language (SQL)
+
+### Aula: Conheça o DML e o Truncate
+
+- Acessar o repositório [@drobcosta/digital_innovation_one](https://github.com/drobcosta/digital_innovation_one)
+- Baixar o arquivo `dml.sql`
+   - O arquivo contém dados para inserção nas tabelas criadas na aula anterior
+- No pgAdmin4, em Query Tool, abrir o arquivo `dml.sql`
+- Executar todo os comandos pressionando `F5`
+- Algumas consultas para analisar os dados inseridos
+
+```sql
+SELECT numero, nome, ativo FROM banco;
+SELECT banco_numero, numero, nome FROM agencia;
+SELECT numero, nome, email FROM cliente;
+SELECT id, nome FROM tipo_transacao;
+SELECT banco_numero, agencia_numero, numero, cliente_numero FROM conta_corrente;
+SELECT banco_numero, agencia_numero, cliente_numero FROM cliente_transacoes;
+
+SELECT * FROM cliente_transacoes;
+```
+
+- Testando alguns comandos:
+
+```sql
+CREATE TABLE IF NOT EXISTS teste (
+	id SERIAL PRIMARY KEY,
+	nome VARCHAR(50) NOT NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+DROP TABLE IF EXISTS teste;
+
+CREATE TABLE IF NOT EXISTS teste (
+	cpf VARCHAR(11) NOT NULL,
+	nome VARCHAR(50) NOT NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (cpf)
+);
+
+-- Após a execução do comando abaixo, tentar executar novamente e analisar comportamento
+INSERT INTO teste (cpf, nome, created_at) 
+VALUES ('22344566712', 'José Colméia', '2019-07-01 12:00:00');
+
+INSERT INTO teste (cpf, nome, created_at) 
+VALUES ('22344566712', 'José Colméia', '2019-07-01 12:00:00')
+ON CONFLICT (cpf) DO NOTHING;
+
+UPDATE teste SET nome = 'Pedro Alvares' WHERE cpf = '22344566712';
+
+SELECT * FROM teste;
 ```
