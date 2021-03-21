@@ -669,19 +669,19 @@ SHOW [parâmetro]
 ##### INSERT - Idempotência
 
 ```sql
-INSERT INTO agencia (banco_numero, numero, nome) VALUES (341, 1, 'Centro da cidade');
-
-INSERT INTO agencia (banco_numero, numero, nome)
-SELECT 341, 1, 'Centro da cidade'
-WHERE NOT EXISTS (SELECT banco_numero, numero, nome, FROM agencia 
-   WHERE banco_numero = 341 AND numero = 1 AND nome = 'Centro da cidade');
+    INSERT INTO agencia (banco_numero, numero, nome) VALUES (341, 1, 'Centro da cidade');
+    
+    INSERT INTO agencia (banco_numero, numero, nome)
+    SELECT 341, 1, 'Centro da cidade'
+    WHERE NOT EXISTS (SELECT banco_numero, numero, nome, FROM agencia 
+       WHERE banco_numero = 341 AND numero = 1 AND nome = 'Centro da cidade');
 ```
 
 ##### ON CONFLICT
 
 ```sql
-INSERT INTO agencia (banco_numero, numero, nome) VALUES (341, 1, 'Centro da cidade')
-ON CONFLICT (banco_numero, numero) DO NOTHING;
+    INSERT INTO agencia (banco_numero, numero, nome) VALUES (341, 1, 'Centro da cidade')
+    ON CONFLICT (banco_numero, numero) DO NOTHING;
 ```
 
 
@@ -693,8 +693,8 @@ ON CONFLICT (banco_numero, numero) DO NOTHING;
 
 
 ```sql
-TRUNCATE [TABLE] [ONLY] name [*] [, ...]
-   [RESTART IDENTITY] | [CONTINUE IDENTITY] [CASCADE | RESTRICT]
+    TRUNCATE [TABLE] [ONLY] name [*] [, ...]
+       [RESTART IDENTITY] | [CONTINUE IDENTITY] [CASCADE | RESTRICT]
 ```
 
 
@@ -713,6 +713,65 @@ TRUNCATE [TABLE] [ONLY] name [*] [, ...]
 
 
 ### Trabalhando com JOINs
+
+#### Definição
+
+- JOIN
+- LEFT JOIN
+- RIGHT JOIN
+- FULL JOIN
+- CROSS JOIN
+
+
+#### JOIN (INNER JOIN)
+
+```sql
+   SELECT tabela_1.campos, tabela_2.campos
+   FROM tabela_1
+   JOIN tabela_2
+      ON tabela_2.campo = tabela_1.campo
+```
+
+
+#### LEFT JOIN (LEFT OUTER JOIN)
+
+```sql
+   SELECT tabela_1.campos, tabela_2.campos
+   FROM tabela_1
+   LEFT JOIN tabela_2
+      ON tabela_2.campo = tabela_1.campo
+```
+
+
+#### RIGHT JOIN (RIGHT OUTER JOIN)
+
+```sql
+   SELECT tabela_1.campos, tabela_2.campos
+   FROM tabela_1
+   RIGHT JOIN tabela_2
+      ON tabela_2.campo = tabela_1.campo
+```
+
+
+#### FULL JOIN (FULL OUTER JOIN)
+
+```sql
+   SELECT tabela_1.campos, tabela_2.campos
+   FROM tabela_1
+   FULL JOIN tabela_2
+      ON tabela_2.campo = tabela_1.campo
+```
+
+
+#### CROSS JOIN
+
+- Todos os dados de uma tabela serão cruzados com todos os dados da tabela referenciada no CROSS JOIN criando uma matriz
+
+```sql
+   SELECT tabela_1.campos, tabela_2.campos
+   FROM tabela_1
+   CROSS JOIN tabela_2
+```
 
 ---
 
