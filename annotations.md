@@ -778,6 +778,32 @@ SHOW [parâmetro]
 
 ### Otimizando o código com CTE
 
+- Commom Table Expressions - CTE
+
+
+#### Definição
+
+- Forma auxiliar de organizar "statements", ou seja, blocos de códigos, para consultas muito grandes, gerando tabelas temporárias e criando relacionamentos entre elas
+- Dentro das statements podem ter SELECTs, INSERTs, UPDATEs ou DELETEs
+
+
+#### WITH STATEMENTS
+   
+```sql
+   WITH [nome1] AS (
+      SELECT (campos,)
+	  FROM tabela_A
+	  [WHERE]
+   ), [nome2 AS (
+      SELECT (campos,)
+	  FROM tabela_B
+	  [WHERE]
+   )
+   SELECT [nome1].(campos), [nome2].(campos,)
+   FROM [nome1]
+   JOIN [nome2] ....
+```
+
 ---
 
 
