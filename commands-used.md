@@ -415,33 +415,28 @@ SELECT numero, nome, ativo
 FROM banco;
 
 
--- Cria a VIEW vw_bancos
 CREATE OR REPLACE VIEW vw_bancos AS (
 	SELECT numero, nome, ativo
 	FROM banco
 );
 
--- Lista os registros da tabela banco, usando a VIEW vw_bancos
 SELECT numero, nome, ativo
 FROM vw_bancos;
 
 ----------
 
--- Cria a VIEW vw_bancos_2
 CREATE OR REPLACE VIEW vw_bancos_2 (banco_numero, banco_nome, banco_ativo) AS (
 	SELECT numero, nome, ativo
 	FROM banco
 );
 
--- Lista os registros da tabela banco, usando a VIEW vw_bancos_2
 SELECT banco_numero, banco_nome, banco_ativo
 FROM vw_bancos_2;
 
--- Insere registro na tabela bancos, usando a VIEW vw_bancos_2
 INSERT INTO vw_bancos_2 (banco_numero, banco_nome, banco_ativo)
 VALUES (51, 'Banco Boa Ideia', TRUE);
 
--- Consulta o banco adicionado anteriormente, usando a VIEW vw_bancos_2
+-- Consulta usando a VIEW vw_bancos_2
 SELECT banco_numero, banco_nome, banco_ativo
 FROM vw_bancos_2
 WHERE banco_numero = 51;
@@ -449,33 +444,27 @@ WHERE banco_numero = 51;
 -- Consulta diretamente na tabela banco
 SELECT numero, nome, ativo FROM banco WHERE numero = 51;
 
--- Atualiza valor da coluna ativo, usando a VIEW vw_bancos_2
 UPDATE vw_bancos_2 SET banco_ativo = FALSE WHERE banco_numero = 51;
 
--- Apaga registro da tabela banco, usando a VIEW vw_bancos_2
 DELETE FROM vw_bancos_2 WHERE banco_numero = 51;
 ```
 
 
 - Exemplo de uso da opção `TEMPORARY`
+   - Ao sair e entrar novamente, ou ao abrir um novo `Query Editor`, a VIEW não existirá mais
 
 ```sql
--- Cria a VIEW temporária vw_agencia
 CREATE OR REPLACE TEMPORARY VIEW vw_agencia AS (
 	SELECT nome FROM agencia
 )
 
--- Lista os registros da coluna nome da tabela agencia, usando a VIEW vw_agencia
 SELECT nome FROM vw_agencia;
-
--- Ao sair e entrar novamente, ou ao abrir um novo Query Editor, essa VIEW não existirá mais
 ```
 
 
 - `WITH OPTIONS`
 
 ```sql
--- Cria a VIEW vw_bancos_ativos com WITH LOCAL CHECK OPTION
 CREATE OR REPLACE VIEW vw_bancos_ativos AS (
 	SELECT numero, nome, ativo
 	FROM banco
@@ -483,23 +472,21 @@ CREATE OR REPLACE VIEW vw_bancos_ativos AS (
 ) WITH LOCAL CHECK OPTION;
 
 INSERT INTO vw_bancos_ativos (numero, nome, ativo) VALUES (51, 'Banco Boa Ideia', FALSE);
--- ERRO - Pois a VIEW faz validação do valor do campo "ativo", aceitando somente TRUE
+-- ERRO, pois a VIEW faz validação do valor do campo "ativo" aceitando somente TRUE
 
 
--- Cria a VIEW vw_bancos_com_a com WITH LOCAL CHECK OPTION
+
 CREATE OR REPLACE VIEW vw_bancos_com_a AS (
 	SELECT numero, nome, ativo
 	FROM vw_bancos_ativos
 	WHERE nome ILIKE 'a%'
 ) WITH LOCAL CHECK OPTION;
 
--- Lista todos os registros que começam com A ou a da tabela bancos, usando a VIEW vw_bancos_com_a
 SELECT numero, nome, ativo FROM vw_bancos_com_a;
 
 INSERT INTO vw_bancos_com_a (numero, nome, ativo) VALUES (333, 'Beta Omega', TRUE);
--- ERRO - Pois na validação da coluna nome, a VIEW vw_bancos_com_a só aceita valores que comecem com A ou a
+-- ERRO, pois na validação da coluna nome a VIEW vw_bancos_com_a só aceita valores que comecem com A ou a
 
--- Insere novo registro na tabela bancos, usando a VIEW vw_bancos_com_a
 INSERT INTO vw_bancos_com_a (numero, nome, ativo) VALUES (333, 'Alfa Omega', TRUE);
 INSERT INTO vw_bancos_com_a (numero, nome, ativo) VALUES (331, 'Alfa Gama', FALSE);
 ```
@@ -524,7 +511,7 @@ INSERT INTO funcionarios (nome, gerente) VALUES ('Wagner', 4);
 
 SELECT id, nome, gerente FROM funcionarios WHERE gerente IS NULL
 UNION ALL
-SELECT id, nome, gerente FROM funcionarios WHERE id = 999; -- Apenas para exemplificar
+SELECT id, nome, gerente FROM funcionarios WHERE id = 999;
 
 
 CREATE OR REPLACE RECURSIVE VIEW vw_func(id, gerente, funcionario) AS (
