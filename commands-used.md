@@ -563,3 +563,123 @@ ROLLBACK TO sf_func;
 UPDATE funcionarios SET gerente = 3 WHERE id = 5;
 COMMIT;
 ```
+
+
+### Aula: Conheça as funções que podem ser criadas pelo desenvolvedor
+
+```sql
+CREATE OR REPLACE FUNCTION func_somar(INTEGER, INTEGER)
+RETURNS INTEGER
+SECURITY DEFINER
+RETURNS NULL ON NULL INPUT
+LANGUAGE SQL
+AS $$
+	SELECT $1 + $2;
+$$;
+
+SELECT func_somar(1, 2); -- 3
+SELECT func_somar(1, 100); -- 101
+
+
+
+SELECT COALESCE(null, 'bryan');
+-- Retorna o primeiro valor não nulo que encontrar, neste caso retorna 'bryan'
+SELECT COALESCE(null, 'bryan', 'digital');
+-- Retorna 'bryan'
+SELECT COALESCE(null, null, 'digital', 'bryan');
+-- Retorna 'digital'
+
+
+
+CREATE OR REPLACE FUNCTION func_somar(INTEGER, INTEGER)
+RETURNS INTEGER
+SECURITY DEFINER
+-- RETURNS NULL ON NULL INPUT
+CALLED ON NULL INPUT
+LANGUAGE SQL
+AS $$
+	SELECT COALESCE($1, 100) + COALESCE($2, 100);
+$$;
+
+SELECT func_somar(1, null); -- 101
+
+----------
+
+CREATE OR REPLACE FUNCTION bancos_add(p_numero INTEGER, p_nome VARCHAR, p_ativo BOOLEAN)
+RETURNS INTEGER
+SECURITY INVOKER
+LANGUAGE PLPGSQL
+CALLED ON NULL INPUT
+AS $$
+DECLARE variavel_id INTEGER;
+BEGIN
+	SELECT INTO variavel_id numero
+	FROM banco
+	WHERE numero = p_numero;
+
+	RETURN variavel_id;
+END; $$;
+
+SELECT bancos_add(1, 'Banco Novo', FALSE); -- Retorna 1
+SELECT bancos_add(5432, 'Banco Novo', FALSE); -- Retorna null
+
+
+
+CREATE OR REPLACE FUNCTION bancos_add(p_numero INTEGER, p_nome VARCHAR, p_ativo BOOLEAN)
+RETURNS INTEGER
+SECURITY INVOKER
+LANGUAGE PLPGSQL
+CALLED ON NULL INPUT
+AS $$
+DECLARE variavel_id INTEGER;
+BEGIN
+	IF p_numero IS NULL OR p_nome IS NULL OR p_ativo IS NULL THEN
+		RETURN 0;
+	END IF;
+
+	SELECT INTO variavel_id numero
+	FROM banco
+	WHERE numero = p_numero;
+
+	RETURN variavel_id;
+END; $$;
+
+SELECT bancos_add(1, 'Banco Novo', null); -- Retorna 0
+
+
+
+
+CREATE OR REPLACE FUNCTION bancos_add(p_numero INTEGER, p_nome VARCHAR, p_ativo BOOLEAN)
+RETURNS INTEGER
+SECURITY INVOKER
+LANGUAGE PLPGSQL
+CALLED ON NULL INPUT
+AS $$
+DECLARE variavel_id INTEGER;
+BEGIN
+	IF p_numero IS NULL OR p_nome IS NULL OR p_ativo IS NULL THEN
+		RETURN 0;
+	END IF;
+
+	SELECT INTO variavel_id numero
+	FROM banco
+	WHERE numero = p_numero;
+
+	IF variavel_id IS NULL THEN
+		INSERT INTO banco(numero, nome, ativo)
+		VALUES (p_numero, p_nome, p_ativo);
+	ELSE
+		RETURN variavel_id;
+	END IF;
+
+	SELECT INTO variavel_id numero
+	FROM banco
+	WHERE numero = p_numero;
+
+	RETURN variavel_id;
+END; $$;
+
+SELECT bancos_add(5433, 'Banco Novo em outra porta', true); -- Retorna registo 5433
+
+SELECT numero, nome, ativo FROM banco WHERE numero = 5433; -- Valida resultado do comando anterior
+```
