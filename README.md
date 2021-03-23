@@ -1,16 +1,20 @@
 <h1 align="center">
-    <strong>Curso Conceitos e melhores práticas com bancos de dados PostgreSQL <img height="32" src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/postgresql/postgresql.png"></strong>
-    <p><a target="_blank" rel="noreferrer noopener" href="https://digitalinnovation.one/"><i>Digital Innovation One</i></a></p>
+    <strong>Conceitos e melhores práticas com bancos de dados PostgreSQL <img height="32" src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/postgresql/postgresql.png"></strong>
+    <p><a target="_blank" rel="noreferrer noopener" href="https://digitalinnovation.one/"><i><img height="28" src="https://avatars.githubusercontent.com/u/26231823?s=200&v=4"> Digital Innovation One</i></a></p>
 </h1>
 
 
 Curso ministrado pelo **[Daniel Roberto Costa](https://github.com/drobcosta)** com carga horária de 9 horas, em que aborda os fundamentos e melhores práticas com bancos de dados PostgreSQL.
 
-Disponível na plataforma **[Digital Innovation One](https://digitalinnovation.one/)**.
+Disponível na plataforma **[Digital Innovation One ](https://digitalinnovation.one/)**.
 
 ## ✍️ Anotações
 
-Veja as minhas anotações [clicando aqui](https://github.com/bryan-lima/postgresql-digital-innovation-one/blob/master/annotations.md).
+Veja as minhas anotações [ao clicar aqui](https://github.com/bryan-lima/postgresql-digital-innovation-one/blob/master/annotations.md).
+
+## ⌨️ Comandos
+
+Acesse os comandos utilizados durante o decorrer do curso, [neste link](https://github.com/bryan-lima/postgresql-digital-innovation-one/blob/master/commands-used.md).
 
 <h2>
     <img height="22" src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/postgresql/postgresql.png"> &nbsp;Conteúdo
