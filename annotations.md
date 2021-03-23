@@ -1119,3 +1119,196 @@ SHOW [parâmetro]
 
 ### Conheça as funções que podem ser criadas pelo desenvolvedor
 
+#### Definição
+
+- Conjunto de cóodigos que são executados dentro de uma transação com a finalidade de facilitar a programação e obter o reaproveitamento/reutilização de códigos
+- Existem 4 tipos de funções:
+   - `query language functions` (funções escritas em SQL)
+   - `procedural language functions` (funções escritas em, por exemplo, PL/pgSQL ou PL/py)
+   - `internal functions`
+   - `C-language functions`
+- Porém o foco deste curso é falar sobre `USER DEFINED FUNCTIONS`
+   - Funções que podem ser criadas pelo usuário
+
+
+#### Linguagens
+
+- SQL
+- PL/PGSQL
+- PL/PY
+- PL/PHP
+- PL/RUBY
+- PL/Java
+- PL/Lua
+- ....
+
+
+#### Comando de criação de função
+
+```sql
+   CREATE [OR REPLACE] FUNCTION
+      name ([[argmode] [argname] argtype [{DEFAULT | =} default_expr] [, ...]])
+	  [RETURNS rettype
+	     | RETURNS TABLE (column_name column_type [, ...])]
+	{ LANGUAGE lang_name
+	  | TRANSFORM {FOR TYPE type_name} [, ...]
+	  | WINDOW
+	  | IMMUTABLE | STABLE | VOLATILE | [NOT] LEAKPROOF
+	  | CALLED ON NULL INPUT | RETURNS NULL ON NULL INPUT | STRICT
+	  | [EXTERNAL] SECURITY INVOKER | [EXTERNAL] SECURITY DEFINER
+	  | PARALLEL {UNSAFE | RESTRICTED | SAFE}
+	  | COST execution_cost
+	  | ROWS result_rows
+	  | SET configuration_parameter {TO value | = value | FROM CURRENT}
+	  | AS 'definition'
+	  | AS 'obj_file', 'link_simbol'
+	} ...
+```
+
+#### Idempotência
+
+```sql
+   CREATE OR REPLACE FUNCTION [nome da função]
+```
+
+- Mesmo nome
+- Mesmo tipo de retorno
+- Mesmo número de parâmetros/argumentos
+
+
+#### RETURNS
+
+- Tipo de retorno (data type)
+   - `INTEGER`
+   - `CHAR/VARCHAR`
+   - `BOOLEAN`
+   - `ROW`
+   - `TABLE`
+   - `JSON`
+
+
+#### LANGUAGE
+
+- SQL
+- PLPGSQL
+- PLJAVA
+- PLY
+- ....
+
+
+#### Segurança
+
+- `SECURITY`
+   - `INVOKER`
+   - `DEFINER`
+
+
+#### Comportamento
+
+- `IMMUTABLE`
+   - Não pode alterar o banco de dados
+   - Funções que garantem o mesmo resultado para os mesmos argumentos/parâmetros da função
+   - Evitar utilização de selects, pois tabelas podem sofrer alterações
+- `STABLE`
+   - Não pode alterar o banco de dados
+   - Funções que garantem o mesmo resultado para os mesmos argumentos/parâmetros da função
+   - Trabalha melhor com tipos de current_timestamp e outras variáveis
+   - Podem conter selects
+- `VOLATILLE`
+   - Comportamento padrão
+   - Aceita todos os cenários
+
+
+#### Segurança e Boas Práticas
+
+- `CALLED ON NULL INPUT`
+   - Padrão
+   - Se qualquer um dos parâmetros/argumentos for NULL, a função será executada
+- `RETURNS NULL ON NULL INPUT`
+   - Se qualquer um dos parâmetros/argumentos for NULL, a função retornará NULL
+- `SECURITY INVOKER`
+   - Padrão
+   - A função é executada com as permissões de quem executa
+- `SECURITY DEFINER`
+   - A função é executada com as permissões de quem criou a função
+
+
+#### Recursos
+
+- `COST`
+   - Custo/row em unidades de CPU
+- `ROWS`
+   - Número estimado de linhas que será analisada pelo planner
+
+
+#### SQL Functions
+
+- Não é possível utilizar transações
+- Exemplos:
+
+```sql
+   CREATE OR REPLACE FUNCTION fc_somar (INTEGER, INTEGER)
+   RETURNS INTEGER
+   LANGUAGE SQL
+   AS $$
+         SELECT $1 + $2;
+   $$;
+
+   -- É possível nomear os parâmetros
+   CREATE OR REPLACE FUNCTION fc_somar(num1 INTEGER, num2 INTEGER)
+   RETURNS INTEGER
+   LANGUAGE SQL
+   AS $$
+         SELECT num1 + num2;
+   $$;
+
+   ----------
+
+   CREATE OR REPLACE FUNCTION fc_bancos_add(p_numero INTEGER, p_nome VARCHAR, p_ativo BOOLEAN)
+   RETURNS TABLE(numero INTEGER, nome VARCHAR)
+   RETURNS NULL ON NULL INPUT
+   LANGUAGE SQL
+   AS $$
+         INSERT INTO banco (numero, nome, ativo)
+		 VALUES (p_numero, p_nome, p_ativo);
+
+		 SELECT numero, nome
+		 FROM banco
+		 WHERE numero = p_numero;
+   $$;
+```
+
+
+#### PLPGSQL
+
+- É possível utilizar transações
+- Exemplo:
+
+```sql
+   CREATE OR REPLACE FUNCTION banco_add(p_numero INTEGER, p_nome VARCHAR, p_ativo BOOLEAN)
+   RETURNS BOOLEAN
+   LANGUAGE PLPGSQL
+   AS $$
+   DECLARE variavel_id INTEGER;
+   BEGIN
+         SELECT INTO variavel_id numero FROM banco WHERE nome = p_nome;
+
+		 IF variavel_id IS NULL THEN
+               INSERT INTO banco (numero, nome, ativo) VALUES (p_numero, p_nome, p_ativo);
+         ELSE
+		       RETURN FALSE;
+         END IF;
+
+		 SELECT INTO variavel_id numero FROM banco WHERE nome = p_nome;
+
+		 IF variavel_id IS NULL THEN
+		       RETURN FALSE;
+         ELSE
+		       RETURN TRUE;
+         END IF;
+   END; $$;
+
+   SELECT banco_add(13, 'Banco Azarado', TRUE);
+		 WHERE numero = p_numero;
+   $$;
+```
