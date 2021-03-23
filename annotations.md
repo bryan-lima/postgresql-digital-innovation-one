@@ -811,6 +811,263 @@ SHOW [parâmetro]
 
 ### Como as views auxiliam no acesso ao banco de dados
 
+#### Definição
+
+- Views são visões
+- São "camadas" para as tabelas
+- São "alias" para uma ou mais queries
+- Aceitam comandos de SELECT, INSERT, UPDATE e DELETE
+
+```sql
+   CREATE [OR REPLACE] [TEMP | TEMPORARY] [RECURSIVE] VIEW name [(column_name [, ...])]
+      [WITH (view_option_name [= view_option_value] [, ...])]
+	  AS query
+	  [WITH [CASCADE | LOCAL] CHECK OPTION]
+```
+
+
+#### Idempotência
+
+```sql
+   CREATE OR REPLACE VIEW vw_banco AS (
+      SELECT numero, nome, ativo
+	  FROM banco
+   );
+   
+   SELECT numero, nome, ativo
+   FROM vw_bancos
+   
+   ----------
+   
+   CREATE OR REPLACE VIEW vw_bancos (banco_numero, banco_nome, banco_ativo) AS (
+      SELECT numero, nome, ativo
+	  FROM banco
+   );
+   
+   SELECT banco_numero, banco_nome, banco_ativo
+   FROM vw_bancos
+```
+
+
+#### INSERT, UPDATE e DELETE
+
+```sql
+   CREATE OR REPLACE VIEW vw_banco AS (
+      SELECT numero, nome, ativo
+	  FROM banco
+   );
+   
+   SELECT numero, nome, ativo
+   FROM vw_bancos
+```
+
+- Funcionam apenas para VIEWS com apenas 1 tabela
+
+```sql
+   INSET INTO vw_bancos (numero, nome, ativo) VALUES (100, 'Banco CEM', TRUE);
+   
+   UPDATE vw_bancos SET nome = 'Banco 100' WHERE numero = 100;
+   
+   DELETE FROM vw_bancos WHERE numero = 100;
+```
+
+
+#### TEMPORARY
+
+- `VIEW` presente apenas na sessão do usuário
+- Se você se desconectar e conectar novamente, a `VIEW` não estará disponível
+
+```sql
+   CREATE OR REPLACE TEMPORARY VIEW vw_banco AS (
+      SELECT numero, nome, ativo
+	  FROM banco
+   );
+   
+   SELECT numero, nome, ativo
+   FROM vw_bancos
+```
+
+
+#### RECURSIVE
+
+- Obrigatório a existência dos campos da `VIEW`
+- Comando `UNION` possui dois tipos:
+   - `UNION`: agrupa resultados iguais
+   - `UNION ALL`: não agrupa resultados iguais
+
+```sql
+   CREATE OR REPLACE RECURSIVE VIEW (nome_da_view) (campos_da_view) AS (
+      SELECT base
+	  UNION ALL
+	  SELECT campos
+	  FROM tabela_base
+	  JOIN (nome_da_view)
+   );
+```
+
+
+##### Exemplo de uso do RECURSIVE
+
+```sql
+   CREATE TABLE IF NOT EXISTS funcionarios (
+      id SERIAL NOT NULL,
+	  nome VARCHAR(50),
+	  gerente INTEGER,
+	  PRIMARY KEY(id),
+	  FOREIGN KEY (gerente) REFERENCES funcionarios(id)
+   );
+   
+   
+   INSERT INTO  funcionarios (nome, gerente) VALUES ('Ancelmo', null);
+   INSERT INTO  funcionarios (nome, gerente) VALUES ('Beatriz', 1);
+   INSERT INTO  funcionarios (nome, gerente) VALUES ('Magno', 1);
+   INSERT INTO  funcionarios (nome, gerente) VALUES ('Cremilda', 2);
+   INSERT INTO  funcionarios (nome, gerente) VALUES ('Wagner', 4);
+   
+   
+   SELECT id, nome, gerente FROM funcionarios WHERE gerente IS NULL;
+   -- O result set exibirá:
+   -- ID      NOME         GERENTE
+   -- ----------------------------
+   -- 1       Ancelmo      
+   
+   
+   SELECT id, nome, gerente FROM funcionarios WHERE id = 999;
+   -- Não exibirá nada, não há dados que correspondam a pesquisa
+   
+   
+   SELECT id, nome, gerente FROM funcionarios WHERE gerente IS NULL
+   UNION ALL
+   SELECT id, nome, gerente FROM funcionarios WHERE id = 999
+   -- O result set exibirá:
+   -- ID      NOME         GERENTE
+   -- ----------------------------
+   -- 1       Ancelmo      
+```
+
+- Como funciona a criação
+
+```sql
+   CREATE OR REPLACE RECURSIVE VIEW vw_funcionarios(id, gerente, funcionario) AS (
+      SELECT id, gerente, nome
+	  FROM funcionarios
+	  WHERE gerente IS NULL
+	  UNION ALL
+	  SELECT funcionarios.id, funcionarios.gerente, funcionarios.nome
+	  FROM funcionarios
+	  JOIN vw_funcionarios ON vw_funcionarios.id = funcionarios.gerente
+   );
+   
+   SELECT id, gerente, funcionario
+   FROM vw_funcionarios
+```
+
+- Uma maneira de pesquisa mais inteligente:
+
+```sql
+   CREATE OR REPLACE RECURSIVE VIEW vw_funcionarios(id, gerente, funcionario) AS (
+      SELECT id, CAST('' AS VARCHAR) AS gerente, nome
+	  FROM funcionarios
+	  WHERE gerente IS NULL
+	  UNION ALL
+	  SELECT funcionarios.id, gerentes.nome, funcionarios.nome
+	  FROM funcionarios
+	  JOIN vw_funcionarios ON vw_funcionarios.id = funcionarios.gerente
+	  JOIN funcionarios gerentes ON gerentes.id = vw_funcionarios.id
+   );
+   
+   SELECT id, gerente, funcionario
+   FROM vw_funcionarios
+```
+
+
+#### WITH OPTIONS
+
+```sql
+   CREATE OR REPLACE VIEW  vw_bancos AS (
+      SELECT numero, nome, ativo
+	  FROM banco
+   );
+   
+   INSERT INTO vw_bancos (numero, nome, ativo) VALUES (100, 'Banco CEM', FALSE)
+   -- OK
+   
+   ----------
+   
+   CREATE OR REPLACE VIEW vw_bancos AS (
+      SELECT numero, nome, ativo
+	  FROM banco
+	  WHERE ativo IS TRUE
+   ) WITH LOCAL CHECK OPTION;
+   -- O comando WITH LOCAL CHECK OPTION valida as opções somente da VIEW presente
+   
+   INSERT INTO vw_bancos (numero, nome, ativo) VALUES (100, 'Banco CEM', FALSE)
+   -- ERRO - Pois o "ativo" está sendo passado como FALSE, e a VIEW só aceita TRUE
+   
+   ----------
+   
+   CREATE OR REPLACE VIEW vw_bancos_ativos AS (
+      SELECT numero, nome, ativo
+	  FROM banco
+	  WHERE ativo IS TRUE
+   ) WITH LOCAL CHECK OPTION;
+   
+   CREATE OR REPLACE VIEW vw_bancos_maiores_que_100 AS (
+      SELECT numero, nome, ativo
+	  FROM vw_banco
+	  WHERE numero > 100
+   ) WITH LOCAL CHECK OPTION;
+   
+   INSERT INTO vw_bancos_maiores_que_100 (numero, nome, ativo) VALUES (99, 'Banco DIO', FALSE);
+   -- ERRO - Pois 99 é menor que 100
+   
+   INSERT INTO vw_bancos_maiores_que_100 (numero, nome, ativo) VALUES (200, 'Banco DIO', FALSE);
+   -- ERRO - Pois o "ativo" está como FALSE, e ele valida o "ativo" na primeira VIEW
+   
+   ----------
+   
+   CREATE OR REPLACE VIEW vw_bancos_ativos AS (
+      SELECT numero, nome, ativo
+	  FROM banco
+	  WHERE ativo IS TRUE
+   ) WITH LOCAL CHECK OPTION;
+   
+   CREATE OR REPLACE VIEW vw_bancos_maiores_que_100 AS (
+      SELECT numero, nome, ativo
+	  FROM vw_banco
+	  WHERE numero > 100
+   ) WITH LOCAL CHECK OPTION;
+   
+   INSERT INTO vw_bancos_maiores_que_100 (numero, nome, ativo) VALUES (99, 'Banco DIO', FALSE);
+   -- ERRO - Pois 99 é menor que 100
+   
+   INSERT INTO vw_bancos_maiores_que_100 (numero, nome, ativo) VALUES (200, 'Banco DIO', FALSE);
+   -- OK - Pois o foi removido o comando WITH LOCAL CHECK OPTION da primeira VIEW
+   
+   ----------
+   
+   -- Para validar também as opções da primeira VIEW, sem usar o comando WITH LOCAL CHECK OPTION
+   
+   CREATE OR REPLACE VIEW vw_bancos_ativos AS (
+      SELECT numero, nome, ativo
+	  FROM banco
+	  WHERE ativo IS TRUE
+   ) WITH LOCAL CHECK OPTION;
+   
+   CREATE OR REPLACE VIEW vw_bancos_maiores_que_100 AS (
+      SELECT numero, nome, ativo
+	  FROM vw_banco
+	  WHERE numero > 100
+   ) WITH CASCADED CHECK OPTION;
+   -- O CASCADED valida as opções da VIEW atual e das VIEWs a qual faz referência
+   
+   INSERT INTO vw_bancos_maiores_que_100 (numero, nome, ativo) VALUES (99, 'Banco DIO', FALSE);
+   -- ERRO
+   
+   INSERT INTO vw_bancos_maiores_que_100 (numero, nome, ativo) VALUES (200, 'Banco DIO', FALSE);
+   -- ERRO
+```
+
 ---
 
 
