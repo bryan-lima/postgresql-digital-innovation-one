@@ -1073,6 +1073,47 @@ SHOW [parâmetro]
 
 ### Conheça um dos principais conceitos de banco de dados: transações
 
+#### Definição
+
+- Conceito fundamental de todos os sistemas de banco de dados
+- Conceito de múltiplas etapas/códigos reunidos em apenas 1 transação, onde o resultado precisa ser tudo ou nada
+
+#### Exemplos
+
+```sql
+   BEGIN;
+   
+      UPDATE conta SET valor = valor - 100.00
+	  WHERE nome = 'Alice';
+	  
+	  UPDATE conta SET valor = valor + 100.00
+	  WHERE nome = 'Bob';
+   
+   COMMIT; -- Confirma alterações
+   -- Ou
+   ROLLBACK; -- Descarta alterações
+   
+   ----------
+   
+   BEGIN;
+   
+      UPDATE conta SET valor = valor - 100.00
+	  WHERE nome = 'Alice';
+
+   SAVEPOINT my_savepoint; -- Ponto em que é possível retornar
+   
+	  UPDATE conta SET valor = valor + 100.00
+	  WHERE nome = 'Bob';
+	  -- oops... não é para o Bob, é para Wally!
+	  
+   ROLLBACK TO my_savepoint; -- Retorna para o ponto my_savepoint, desfazendo as ações
+	  
+	  UPDATE conta SET valor = valor + 100.00
+	  WHERE nome = 'Wally';
+   
+   COMMIT;
+```
+
 ---
 
 
